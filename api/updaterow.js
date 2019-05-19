@@ -21,28 +21,31 @@ function GetSheetRows(sheets, options = {}, callback){
 
 function WriteSheetRow(sheets, req, res){
     if(!req.body.row || !req.body.row.length){
+        console.log('row is empty');
         return res.end('null');
     }
 
     const $response = res;
     const valueInputOption = "USER_ENTERED";
     console.log('writing: test');
+    console.log('row: ', req.body);
     GetSheetRows(sheets, req.body, rows => {
         let rlen = rows ? rows.length : 0;
         // add No.
-        let $row = req.body.row;
+        let $row = JSON.parse(req.body.row);
         $row[0] = rlen + 1;
         const body = {
             values: [$row]
         };
         // update, append
         sheets.spreadsheets.values.append({
-                spreadsheetId: req.body.sid|| defaultSheetId,
+                spreadsheetId: req.body.sid||defaultSheetId,
                 range: 'A2:F',
                 valueInputOption: valueInputOption,
                 resource: body
-            }, (err, res) => {
-                if( res.status === 200){
+            }, (err, $res) => {
+                console.log('res===', err);
+                if($res && $res.status === 200){
                     $response.end('success');
                 } else {
                     console.log('update failed!');

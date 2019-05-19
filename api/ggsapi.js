@@ -6,6 +6,7 @@
 */
 const {updateRow} = require('./updaterow');
 function api(auth, req, res, next) {
+    console.log('==========', req.body)
     updateRow.apply(null, Array.prototype.slice.call(arguments))
 }
 
