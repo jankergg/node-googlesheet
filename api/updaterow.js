@@ -52,30 +52,35 @@ function updateRow(sheets, rows, req, res, next){
     let $email = $row[6];
     let matchedRowNum = null;
     let matchedRow = null;
+    let rlen = rows.length;
     for(var i=0;i<rows.length;i++){
         let row = rows[i];
         if(row.indexOf($email)>-1) {
             matchedRow = row;
             matchedRowNum = i+2;
-            break;
         }
     }
 
-    console.log('0000000000000000000');
-    console.log(matchedRowNum);
-    console.log(matchedRow);
-    console.log('0000000000000000000');
     // if not append instead
-    if(matchedRow == null){
+    if(matchedRow == null || matchedRow[7]==='Paid'){
         return appendRow(sheets, rows, req, res)
     }
     // ["0","1","2","3","4","5","jankergg@gmail.com","Paid","4191920501558241170670","5/18/2019","9:46:10 PM",2,387,"ch_1EZRgkG71S92zYgAEsARtCMd"]
+    matchedRow[3] = $row[3];
+    matchedRow[4] = $row[4];
+    matchedRow[5] = $row[5];
     matchedRow[7] = $row[7];
     matchedRow[8] = $row[8];
     matchedRow[9] = $row[9];
     matchedRow[10] = $row[10];
     matchedRow[11] = $row[11];
     matchedRow[12] = $row[12];
+    matchedRow[13] = $row[13];
+    console.log('-----------------------------------')
+    console.log(matchedRow)
+    console.log(matchedRow[7])
+    console.log($row)
+    console.log('-----------------------------------')
     const request = {
         // The spreadsheet to apply the updates to.
         spreadsheetId: req.body.sid||defaultSheetId,
