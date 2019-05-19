@@ -21,7 +21,7 @@ function GetSheetRows(sheets, options = {}, callback){
 
 function WriteSheetRow(sheets, req, res){
     if(!req.body.row || !req.body.row.length){
-        return;
+        return res.end('null');
     }
 
     const $response = res;
