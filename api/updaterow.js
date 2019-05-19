@@ -9,6 +9,12 @@ const {google} = require('googleapis');
 const NumberPattrn = new RegExp("[\(\)\$\s]","ig");
 const defaultSheetId = '1JFh_p0vKxkXY1MWXHblWxAntckmlvRGoqW9Blje8rOo';
 let authObj = null;
+function getRow(row){
+    if(typeof row === 'string'){
+        return JSON.parse(row);
+    }
+    return row;
+}
 function GetSheetRows(sheets, options = {}, callback){
     sheets.spreadsheets.values.get({
         spreadsheetId: options.sid || defaultSheetId,
@@ -42,7 +48,7 @@ function WriteSheetRow(sheets, req, res){
 
 // update row
 function updateRow(sheets, rows, req, res, next){
-    let $row = JSON.stringify(req.body.row);
+    let $row = getRow(req.body.row);
     let $email = $row[6];
     let matchedRowNum = null;
     let matchedRow = null;
@@ -54,27 +60,39 @@ function updateRow(sheets, rows, req, res, next){
             break;
         }
     }
+
+    console.log('0000000000000000000');
+    console.log(matchedRowNum);
+    console.log(matchedRow);
+    console.log('0000000000000000000');
     // if not append instead
     if(matchedRow == null){
         return appendRow(sheets, rows, req, res)
     }
-
+    // ["0","1","2","3","4","5","jankergg@gmail.com","Paid","4191920501558241170670","5/18/2019","9:46:10 PM",2,387,"ch_1EZRgkG71S92zYgAEsARtCMd"]
+    matchedRow[7] = $row[7];
+    matchedRow[8] = $row[8];
+    matchedRow[9] = $row[9];
+    matchedRow[10] = $row[10];
+    matchedRow[11] = $row[11];
+    matchedRow[12] = $row[12];
     const request = {
         // The spreadsheet to apply the updates to.
         spreadsheetId: req.body.sid||defaultSheetId,
         valueInputOption: "USER_ENTERED",
-        values:[ matchedRow ],
-        majorDimension:"ROWS",
-        range:"A2",
+        range:"A" + matchedRowNum,
+        resource: {
+            majorDimension:"ROWS",
+            values:[ matchedRow ]
+        },
         auth: authObj
     };
-
     sheets.spreadsheets.values.update(request, function(err, response) {
         if (err) {
             console.error(err);
             return;
         }
-        console.log(JSON.stringify(response, null, 2));
+        res.end('success');
     });
 }
 
@@ -84,7 +102,7 @@ function appendRow(sheets, rows, req, res, next){
     const $response = res;
     let rlen = rows ? rows.length : 0;
     // add No.
-    let $row = JSON.stringify(req.body.row);
+    let $row = getRow(req.body.row);
     $row[0] = rlen + 1;
     const body = {
         values: [$row]
